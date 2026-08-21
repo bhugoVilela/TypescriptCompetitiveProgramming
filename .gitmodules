@@ -1,0 +1,5 @@
+[submodule "UnboundedTypescript"]
+	path = UnboundedTypescript
+	url = git@github.com:bhugoVilela/UnboundedTypeScript.git
+	branch = Unbounded
+	shallow = true

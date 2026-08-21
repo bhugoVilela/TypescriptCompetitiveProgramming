@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "dependencies": {
+    "argparse": "3.0.0"
+  }
+}
