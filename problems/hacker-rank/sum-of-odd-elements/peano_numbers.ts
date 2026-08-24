@@ -15,7 +15,7 @@ export type Add<A extends Peano, B extends Peano> = A extends Zero
 
 type ParseInt<S extends string> = S extends `${infer N extends number}` ? N : never;
 
-type ToPeano<N extends number, Acc extends Peano = Zero, C extends unknown[] = []> = 
+export type ToPeano<N extends number, Acc extends Peano = Zero, C extends unknown[] = []> = 
   C['length'] extends N 
     ? Acc 
     : ToPeano<N, Succ<Acc>, [unknown, ...C]>;
@@ -47,7 +47,7 @@ type Sum<T extends Peano[], Acc extends Peano = Zero> =
   ? Sum<Rest, Add<H, Acc>>
   : Acc;
 
-type ToNumber<N extends Peano, C extends unknown[] = []> = N extends Zero
+export type ToNumber<N extends Peano, C extends unknown[] = []> = N extends Zero
   ? C['length']
   : N extends Succ<infer Prev>
     ? ToNumber<Prev, [unknown, ...C]>

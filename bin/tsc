@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+# tsc from the local UnboundedTypeScript build.
+#
+# The stack and heap are raised before handing over to node. Without that, --noRecursionLimits
+# isn't much use: a type that recurses without tail calls hits V8's call-stack limit (a
+# RangeError and a native stack dump) long before it reaches anything interesting.
+set -e
+
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+TSC="$ROOT/UnboundedTypescript/built/local/tsc.js"
+
+if [ ! -f "$TSC" ]; then
+  echo "UnboundedTypeScript is not built. Run ./scripts/init-repo.sh" >&2
+  exit 1
+fi
+
+# Raise the process stack as far as the hard limit allows, then let V8 use half of it.
+# Giving V8 the whole thing makes it walk off the end and segfault instead of throwing.
+ulimit -s "$(ulimit -Hs)" 2>/dev/null || true
+STACK_KB=$(ulimit -s)
+case "$STACK_KB" in unlimited | "") STACK_KB=65520 ;; esac
+
+exec node \
+  --stack-size="${TSC_STACK_SIZE:-$((STACK_KB / 2))}" \
+  --max-old-space-size="${TSC_MAX_OLD_SPACE:-8192}" \
+  "$TSC" "$@"

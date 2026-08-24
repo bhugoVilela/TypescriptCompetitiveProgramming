@@ -1,16 +1,11 @@
 #!/usr/bin/env sh
 set -e
 
-echo "npm install"
-npm install
-
 echo "updating submodules"
-git submodule update
+git submodule update --init
 
-echo "Compiling UnboundedTypeScript"
-cd UnboundedTypeScript
-
-echo "installing deps"
+echo "installing UnboundedTypeScript deps"
+cd UnboundedTypescript
 npm install
 
 echo "building compiler"
@@ -18,4 +13,6 @@ npm run build:compiler
 
 cd -
 
-echo "done"
+echo
+echo "done. try:"
+echo "  ./bin/tsc --noEmit --noRecursionLimits --printType Result ./problems/hacker-rank/sum-of-odd-elements/peano_numbers.ts"

@@ -1,6 +1,8 @@
 {
+  "name": "typescript-competitive-programming",
+  "private": true,
   "type": "module",
-  "dependencies": {
-    "argparse": "3.0.0"
+  "bin": {
+    "tsc": "./bin/tsc"
   }
 }
