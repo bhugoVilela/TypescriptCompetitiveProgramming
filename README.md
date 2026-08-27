@@ -32,7 +32,7 @@ Both flags also work from a `tsconfig.json`:
 ```
 
 ## UnboundedTypescript
-Is a fork of typescript that adds two flags:
+Is a fork of typescript with a few new features
 
 ### `--noRecursionLimits`
 Removes the limits the checker uses to stop runaway type instantiation, letting your types recurse
@@ -43,8 +43,33 @@ and possibly infinite"*. Specifically, it disables:
 - the 100-deep / 5M-count instantiation cap
 - the 100-deep cap on type relation checking
 
-Everything else — the complexity caps on unions and on relation caching — is left alone, so a type
-that explodes sideways rather than downwards can still be rejected as too complex. (For now...)
+A BIG CAVEAT, compilation may never terminate of course.
+
+### `--comptime`
+Enables the `as comptime` assertion: the inverse of `as const`. Where `as const` moves a literal
+from the terms to the types, `as comptime` moves it back — the expression is dropped from the emit
+and replaced by the literal value of its type.
+
+```ts
+declare function someComputation(): { a: 1, b: 2 };
+
+const a = someComputation() as comptime;
+// emits: const a = { a: 1, b: 2 } /* someComputation() as comptime */;
+```
+
+The operand is never emitted, so its runtime implementation, and any side effects in it
+disappears. Only types with a single literal value can be used this way; `number`, a union, an
+array type or anything carrying signatures is an error at the assertion. Without the flag,
+`comptime` is an ordinary type name and nothing changes.
+
+A big caveat, since it's used to emit code which required whole-program typechecking which
+can be problematic with `--noRecursionLimits` as explained below
+
+```sh
+./bin/tsc --noRecursionLimits --comptime --noCheck --outDir ./dist ./problems/misc/brainfuck.ts
+# dist/misc/brainfuck.js:
+#   const a = "Hello World!\n" /* null as unknown as Result as comptime */;
+```
 
 ### `--printType <name>`
 Resolves the type alias with that name in the file you passed and prints it fully expanded
